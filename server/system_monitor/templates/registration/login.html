@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Monitoring</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+<a href="https://github.com/marcinkonwiak/monitoring" target="_blank" class="github-logo">
+    <img src="{% static 'assets/github-mark.svg' %}" alt="GitHub Logo">
+</a>
+<div class="login-container">
+    <div id="title-section">
+        <h1 class="title">Monitoring System</h1>
+    </div>
+
+    {% if form.errors %}
+        <div class="error-message">
+            Incorrect username or password. Please try again.
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="login-button">Log In</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const errorMessage = document.querySelector('.error-message');
+        if (errorMessage) {
+            setTimeout(() => {
+                errorMessage.style.opacity = '0';
+                setTimeout(() => errorMessage.style.display = 'none', 300);
+            }, 2000);
+        }
+    });
+</script>
+</body>
+</html>
