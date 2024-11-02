@@ -18,6 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from system_monitor import views
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-]
+    path('login/', views.BaseLoginView.as_view(), name='login'), ]
