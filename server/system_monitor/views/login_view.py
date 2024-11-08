@@ -7,7 +7,7 @@ class BaseLoginView(LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return reverse_lazy('main')
+        return reverse_lazy('home')
 
     def form_valid(self, form):
         response = super().form_valid(form)
