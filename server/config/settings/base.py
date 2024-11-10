@@ -34,9 +34,6 @@ DATABASES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-DATABASE_ROUTERS = [
-    "src.common.db.database_router.DatabaseRouter",
-]
 
 # URLS
 # ------------------------------------------------------------------------------
@@ -106,7 +103,7 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -137,4 +134,10 @@ LOGGING = {
         },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
+}
+
+# GRPC
+# ------------------------------------------------------------------------------
+GRPC_FRAMEWORK = {
+    "ROOT_HANDLERS_HOOK": "system_monitor.handlers.grpc_handlers",
 }

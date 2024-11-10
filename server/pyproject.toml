@@ -21,6 +21,7 @@ target-version = "py312"
 
 extend-exclude = [
     "*/migrations/*.py",
+    "system_monitor/grpc/*.py",
 ]
 
 [tool.ruff.lint]

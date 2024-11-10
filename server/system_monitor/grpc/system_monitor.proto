@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package config.system_monitor;
+
+import "google/protobuf/empty.proto";
+
+service HostStatsController {
+    rpc Stream(stream StatsDataInputRequest) returns (stream google.protobuf.Empty) {}
+}
+
+message StatsCpuInputRequest {
+    float percent = 1;
+}
+
+message StatsDataInputRequest {
+    int32 timestamp = 1;
+    StatsCpuInputRequest cpu = 2;
+    StatsRamInputRequest ram = 3;
+    StatsOsInputRequest os = 4;
+}
+
+message StatsOsInputRequest {
+    string hostID = 1;
+    string os = 2;
+    string platform = 3;
+    string platformVersion = 4;
+    uint64 processes = 5;
+}
+
+message StatsRamInputRequest {
+    uint64 total = 1;
+    uint64 available = 2;
+    uint64 used = 3;
+}
+
