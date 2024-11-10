@@ -3,19 +3,13 @@ package client
 import (
 	"context"
 	"errors"
-	"fmt"
+	"github.com/marcinkonwiak/monitoring-client/pb"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/host"
 	"github.com/shirou/gopsutil/v4/mem"
+	"log"
 	"time"
 )
-
-// - czas działania systemu,
-// - użycie CPU,
-// - użycie pamięci RAM,
-// - użycie miejsca na dysku,
-// - liczba działających procesów,
-// - dla każdego kontenera docker uruchomionego w systemie: użycie CPU, użycie pamięci RAM, liczba działających procesów.
 
 type statsData struct {
 	timestamp int64
@@ -35,21 +29,43 @@ type statsRam struct {
 }
 
 type statsOs struct {
+	hostID          string
 	os              string
 	platform        string
 	platformVersion string
 	processes       uint64
 }
 
+func (s statsData) toRequestData() *pb.StatsDataInputRequest {
+	return &pb.StatsDataInputRequest{
+		Timestamp: int32(s.timestamp),
+		Cpu: &pb.StatsCpuInputRequest{
+			Percent: float32(s.cpu.percent),
+		},
+		Ram: &pb.StatsRamInputRequest{
+			Total:     s.ram.total,
+			Available: s.ram.available,
+			Used:      s.ram.used,
+		},
+		Os: &pb.StatsOsInputRequest{
+			HostID:          s.os.hostID,
+			Os:              s.os.os,
+			Platform:        s.os.platform,
+			PlatformVersion: s.os.platformVersion,
+			Processes:       s.os.processes,
+		},
+	}
+}
+
 type statsCollector struct {
 	interval time.Duration
-	data     chan []statsData
+	data     chan statsData
 }
 
 func newStatsCollector(interval time.Duration) *statsCollector {
 	return &statsCollector{
 		interval: interval,
-		data:     make(chan []statsData),
+		data:     make(chan statsData),
 	}
 }
 
@@ -62,20 +78,24 @@ func (s *statsCollector) start(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			s.collectStats()
+			s.collectStats(ctx)
 		}
 	}
 }
 
-func (s *statsCollector) collectStats() statsData {
+func (s *statsCollector) collectStats(ctx context.Context) {
 	d := statsData{}
 	d.cpu, _ = s.getCpuPercent()
 	d.ram, _ = s.getRamData()
 	d.os, _ = s.getOsData()
+	d.timestamp = time.Now().Unix()
 
-	fmt.Printf("%+v\n", d)
-
-	return d
+	select {
+	case <-ctx.Done():
+	case s.data <- d:
+	default:
+		log.Println("Data channel is full, dropping data!")
+	}
 }
 
 func (s *statsCollector) getCpuPercent() (statsCpu, error) {
@@ -107,6 +127,7 @@ func (s *statsCollector) getOsData() (statsOs, error) {
 	}
 
 	return statsOs{
+		hostID:          o.HostID,
 		os:              o.OS,
 		platform:        o.Platform,
 		platformVersion: o.PlatformVersion,
