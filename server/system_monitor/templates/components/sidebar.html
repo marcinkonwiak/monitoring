@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <p id="sidebar-header-text">Monitoring System</p>
+        <p id="sidebar-header-subtext">Docker & native OS</p>
+    </div>
+    <ul class="sidebar-menu">
+        <li>
+            <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line"></i> Dashboard
+            </a>
+            <a href="{% url 'instances' %}" class="{% if request.path == '/instances/' %}active{% endif %}">
+                <i class="fa-solid fa-hard-drive"></i> All instances
+            </a>
+        </li>
+    </ul>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button id="logout-btn" type="submit">Logout</button>
+    </form>
+</div>
+</body>
+</html>
