@@ -1,18 +1,16 @@
 import asyncio
+from datetime import datetime
 
 from asgiref.sync import sync_to_async
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.generics import GenericService
 
-from .models import HostStats
+from .models import HostStats, Host
 from .serializers import StatsDataInputSerializer
 
 
 class HostStatsService(GenericService):
     serializer_class = StatsDataInputSerializer
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     @grpc_action(
         request=StatsDataInputSerializer,
@@ -25,7 +23,17 @@ class HostStatsService(GenericService):
         elements: list[HostStats] = []
 
         async for stats_data in request:
-            host_stats = HostStats.from_proto_dict(stats_data)
+            host_id = stats_data.os.hostID
+
+            host, created = await sync_to_async(Host.objects.get_or_create)(
+                host_id=host_id
+            )
+
+            host.last_seen = datetime.now()
+            host.os = stats_data.os.os
+            await sync_to_async(host.save)()
+
+            host_stats = HostStats.from_proto_dict(host, stats_data)
 
             async with lock:
                 elements.append(host_stats)
@@ -36,4 +44,5 @@ class HostStatsService(GenericService):
 
         if elements:
             await sync_to_async(HostStats.objects.bulk_create)(elements)
+
         return
