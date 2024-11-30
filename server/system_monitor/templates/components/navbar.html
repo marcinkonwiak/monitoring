@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <script src="{% static 'js/navbar.js' %}"></script>
 </head>
 <body>
 <div id="navbar">
@@ -14,6 +15,7 @@
         <input type="text" class="search-input" placeholder="Search an instance">
     </div>
     <div></div>
+    {% include 'components/search_modal.html' %}
 </div>
 
 </body>

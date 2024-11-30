@@ -16,8 +16,8 @@
             <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">
                 <i class="fa-solid fa-chart-line"></i> Dashboard
             </a>
-            <a href="{% url 'instances' %}" class="{% if request.path == '/instances/' %}active{% endif %}">
-                <i class="fa-solid fa-hard-drive"></i> All instances
+            <a href="{% url 'hosts' %}" class="{% if request.path == '/host/' %}active{% endif %}">
+                <i class="fa-solid fa-hard-drive"></i> All hosts
             </a>
         </li>
     </ul>

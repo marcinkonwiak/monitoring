@@ -1,0 +1,39 @@
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'css/search_modal.css' %}">
+</head>
+
+<div id="search-modal">
+    <div class="modal-content">
+        {% for host in hosts %}
+            <div class="host-item"
+                 data-host-id="{{ host.host_id }}"
+                 data-host-os="{{ host.os }}">
+                <p id="host-id">
+                    {{ host.host_id }}
+                </p>
+                <p id="host-os">
+                    {{ host.os }}
+                </p>
+            </div>
+        {% endfor %}
+        <div id="no-results" style="display: none; text-align: center;">
+            <p>No results found 😢</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const hostItems = document.querySelectorAll(".host-item");
+
+        hostItems.forEach(item => {
+            item.addEventListener("click", () => {
+                const hostId = item.getAttribute("data-host-id");
+                window.location.href = `/host/${hostId}/`;
+            });
+        });
+    });
+</script>

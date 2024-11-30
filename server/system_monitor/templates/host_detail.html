@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block extra_headers %}
+    <link rel="stylesheet" href="{% static 'css/host_detail.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+
+{% endblock %}
+
+
+{% block content %}
+
+    <p>OS: {{ host.os }}</p>
+    <p>Last Seen: {{ host.last_seen }}</p>
+
+    <div class="card-detail">
+        <p class="card-detail-title">CPU Usage</p>
+        <div id="cpu-chart-wrapper">
+            <div id="cpu-chart"></div>
+            <div id="cpu-value">0%</div>
+        </div>
+    </div>
+
+    <div class="card-detail">
+        <p class="card-detail-title">RAM Usage</p>
+        <canvas id="ram-chart" width="800" height="400"></canvas>
+    </div>
+
+
+    <table border="1">
+        <thead>
+        <tr>
+            <th>Time</th>
+            <th>CPU %</th>
+            <th>RAM Total</th>
+            <th>RAM Available</th>
+            <th>RAM Used</th>
+            <th>OS</th>
+            <th>Platform</th>
+            <th>Version</th>
+            <th>Processes</th>
+        </tr>
+        </thead>
+        <tbody id="stats-body">
+        </tbody>
+    </table>
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+    <script>
+        let ramChart;
+
+        function initializeRamChart() {
+            const ctx = document.getElementById('ram-chart').getContext('2d');
+            ramChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [], // Initialize empty labels
+                    datasets: [{
+                        label: 'Available RAM (MB)',
+                        data: [], // Initialize empty data
+                        borderColor: '#4caf50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'second',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'RAM Available (MB)'
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return (value / (1024 * 1024)).toFixed(0) + ' MB';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRamChart(ramAvailable, time) {
+            if (ramChart) {
+                const lastLabel = ramChart.data.labels[ramChart.data.labels.length - 1];
+                if (!lastLabel || new Date(lastLabel).getTime() !== new Date(time).getTime()) {
+                    ramChart.data.labels.push(time);
+                    ramChart.data.datasets[0].data.push(ramAvailable);
+
+                    if (ramChart.data.labels.length > 20) {
+                        ramChart.data.labels.shift();
+                        ramChart.data.datasets[0].data.shift();
+                    }
+
+                    ramChart.update();
+                }
+            }
+        }
+
+
+        function updateCpuChart(cpuPercent) {
+            const chart = $("#cpu-chart");
+            const cpuValue = $("#cpu-value");
+            chart.empty();
+
+            const roundedCpuPercent = Math.round(cpuPercent);
+
+            const activeSquares = Math.floor(roundedCpuPercent / 5);
+            for (let i = 0; i < 20; i++) {
+                const square = $("<div>").addClass("cpu-square");
+                if (i < activeSquares) {
+                    square.addClass("active");
+                }
+                chart.append(square);
+            }
+
+            cpuValue.text(`${roundedCpuPercent}%`);
+        }
+
+function fetchStats() {
+    $.getJSON("{% url 'host_stats_data' host.host_id %}", function (data) {
+        const statsBody = $("#stats-body");
+        statsBody.empty();
+
+        const columns = [
+            "time",
+            "cpu_percent",
+            "ram_total",
+            "ram_available",
+            "ram_used",
+            "os",
+            "platform",
+            "platform_version",
+            "processes",
+        ];
+
+        if (data.stats.length === 0) {
+            statsBody.append("<tr><td colspan='9'>No data available</td></tr>");
+            return;
+        }
+
+        const labels = [];
+        const ramAvailableData = [];
+
+        data.stats.forEach((stat, index) => {
+            const row = $("<tr>");
+            columns.forEach(col => {
+                const value = stat[col];
+                row.append(`<td>${value !== undefined ? value : "-"}</td>`);
+            });
+            statsBody.append(row);
+
+            labels.push(new Date(stat["time"]));
+            ramAvailableData.push(stat["ram_available"]);
+
+            if (index === 0) {
+                updateCpuChart(stat["cpu_percent"]);
+            }
+        });
+
+        if (ramChart) {
+            ramChart.data.labels = labels;
+            ramChart.data.datasets[0].data = ramAvailableData;
+            ramChart.update();
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        console.error("Error fetching stats:", textStatus, errorThrown);
+    });
+}
+
+
+        $(document).ready(function () {
+            initializeRamChart();
+            fetchStats();
+            setInterval(fetchStats, 5000);
+        });
+
+    </script>
+{% endblock %}
