@@ -60,13 +60,12 @@ func sendStatsWithRetry(stream pb.HostStatsController_StreamClient, data statsDa
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		err = stream.Send(data.toRequestData())
 		if err == nil {
-			log.Printf("Data sent successfully")
 			return nil
 		}
 
 		log.Printf("Attempt %d to send data failed: %v", attempt, err)
 		time.Sleep(retryDelay)
 	}
-	log.Printf("retunring error: %v", err)
+
 	return err
 }
