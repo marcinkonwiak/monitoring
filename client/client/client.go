@@ -11,17 +11,19 @@ import (
 )
 
 type Client struct {
+	serverAddress  string
 	statsCollector *statsCollector
 }
 
-func NewClient() *Client {
+func NewClient(serverAddress string, sendInterval int) *Client {
 	return &Client{
-		statsCollector: newStatsCollector(time.Duration(1) * time.Second),
+		serverAddress:  serverAddress,
+		statsCollector: newStatsCollector(time.Duration(sendInterval) * time.Second),
 	}
 }
 
-func getConnection() (*grpc.ClientConn, error) {
-	grpcConn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+func (c *Client) getConnection() (*grpc.ClientConn, error) {
+	grpcConn, err := grpc.NewClient(c.serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +56,7 @@ func (c *Client) Start() {
 }
 
 func (c *Client) streamData() error {
-	grpcConn, err := getConnection()
+	grpcConn, err := c.getConnection()
 	if err != nil {
 		return err
 	}
