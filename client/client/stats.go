@@ -234,7 +234,7 @@ func (s *statsCollector) getContainersData(d *statsData, wg *sync.WaitGroup, mu 
 		context.Background(), container.ListOptions{},
 	)
 	if err != nil {
-		log.Printf("Could not get docker containers: %v\n", err)
+		log.Printf("Failed to get docker containers: %v\n", err)
 		return
 	}
 

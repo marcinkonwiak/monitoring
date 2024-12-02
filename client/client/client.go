@@ -5,6 +5,7 @@ import (
 	"github.com/marcinkonwiak/monitoring-client/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"time"
 )
@@ -19,8 +20,26 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) Start() {
+func getConnection() (*grpc.ClientConn, error) {
 	grpcConn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+	return grpcConn, nil
+}
+
+func (c *Client) getStream(conn *grpc.ClientConn) (grpc.BidiStreamingClient[pb.StatsDataInputRequest, emptypb.Empty], error) {
+	client := pb.NewHostStatsControllerClient(conn)
+	stream, err := client.Stream(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return stream, err
+}
+
+func (c *Client) Start() {
+	grpcConn, err := getConnection()
 	if err != nil {
 		log.Fatalf("Failed to connect to the server: %v", err)
 	}
@@ -31,8 +50,7 @@ func (c *Client) Start() {
 		}
 	}(grpcConn)
 
-	client := pb.NewHostStatsControllerClient(grpcConn)
-	stream, err := client.Stream(context.Background())
+	stream, err := c.getStream(grpcConn)
 	if err != nil {
 		log.Fatalf("Failed to create stream: %v", err)
 	}
@@ -46,26 +64,11 @@ mainLoop:
 	for {
 		select {
 		case data := <-c.statsCollector.data:
-			if err := sendStatsWithRetry(stream, data, 3, time.Second); err != nil {
-				log.Printf("Failed to send data after 3 attempts: %v", err)
+			if err := stream.Send(data.toRequestData()); err != nil {
+				log.Printf("Failed to send data: %v", err)
 				break mainLoop
 			}
 			log.Printf("Data sent")
 		}
 	}
-}
-
-func sendStatsWithRetry(stream pb.HostStatsController_StreamClient, data statsData, maxRetries int, retryDelay time.Duration) error {
-	var err error
-	for attempt := 1; attempt <= maxRetries; attempt++ {
-		err = stream.Send(data.toRequestData())
-		if err == nil {
-			return nil
-		}
-
-		log.Printf("Attempt %d to send data failed: %v", attempt, err)
-		time.Sleep(retryDelay)
-	}
-
-	return err
 }
