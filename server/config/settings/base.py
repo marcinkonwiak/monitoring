@@ -90,7 +90,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                'system_monitor.context_processors.hosts',
+                "system_monitor.context_processors.hosts",
             ],
         },
     },

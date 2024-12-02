@@ -11,6 +11,8 @@ class Host(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen = models.DateTimeField(null=True, blank=True)
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.host_id
 
@@ -27,6 +29,8 @@ class HostStats(models.Model):
     platform = models.CharField(max_length=255)
     platform_version = models.CharField(max_length=255)
     processes = models.IntegerField()
+
+    objects = models.Manager()
 
     @classmethod
     def from_proto_dict(cls, host: Host, data: Any) -> "HostStats":

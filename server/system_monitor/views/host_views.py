@@ -1,6 +1,6 @@
 from django.http import JsonResponse
-from django.views.generic import DetailView, View
 from django.shortcuts import get_object_or_404
+from django.views.generic import DetailView, View
 
 from system_monitor.models import Host
 
@@ -13,6 +13,7 @@ class HostDetailView(DetailView):
     def get_object(self):
         host_id = self.kwargs.get("host_id")
         return get_object_or_404(Host, host_id=host_id)
+
 
 class HostStatsDataView(View):
     def get(self, request, host_id):

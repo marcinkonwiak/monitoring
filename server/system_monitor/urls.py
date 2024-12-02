@@ -12,5 +12,9 @@ urlpatterns = [
     path("", views.HomeView.as_view(), name="home"),
     path("host/", views.HomeView.as_view(), name="hosts"),
     path("host/<str:host_id>/", HostDetailView.as_view(), name="host_detail"),
-    path("host/<str:host_id>/stats-data/", HostStatsDataView.as_view(), name="host_stats_data"),
+    path(
+        "host/<str:host_id>/stats-data/",
+        HostStatsDataView.as_view(),
+        name="host_stats_data",
+    ),
 ]
