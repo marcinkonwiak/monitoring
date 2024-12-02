@@ -39,34 +39,42 @@ func (c *Client) getStream(conn *grpc.ClientConn) (grpc.BidiStreamingClient[pb.S
 }
 
 func (c *Client) Start() {
-	grpcConn, err := getConnection()
-	if err != nil {
-		log.Fatalf("Failed to connect to the server: %v", err)
-	}
-	defer func(grpcClient *grpc.ClientConn) {
-		err := grpcClient.Close()
-		if err != nil {
-			log.Fatalf("Failed to close the connection: %v", err)
-		}
-	}(grpcConn)
-
-	stream, err := c.getStream(grpcConn)
-	if err != nil {
-		log.Fatalf("Failed to create stream: %v", err)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	go c.statsCollector.start(ctx)
 
-mainLoop:
+	for {
+		if err := c.streamData(); err != nil {
+			log.Printf("Error: %v", err)
+			log.Printf("Trying to reconnect in 5 seconds")
+			time.Sleep(5 * time.Second)
+		}
+	}
+}
+
+func (c *Client) streamData() error {
+	grpcConn, err := getConnection()
+	if err != nil {
+		return err
+	}
+	defer func(grpcClient *grpc.ClientConn) {
+		err := grpcClient.Close()
+		if err != nil {
+			log.Printf("Failed to close the connection: %v", err)
+		}
+	}(grpcConn)
+
+	stream, err := c.getStream(grpcConn)
+	if err != nil {
+		return err
+	}
+
 	for {
 		select {
 		case data := <-c.statsCollector.data:
 			if err := stream.Send(data.toRequestData()); err != nil {
-				log.Printf("Failed to send data: %v", err)
-				break mainLoop
+				return err
 			}
 			log.Printf("Data sent")
 		}
