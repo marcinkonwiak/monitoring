@@ -28,6 +28,7 @@ class HostStatsService(GenericService):
         elements: list[HostStats] = []
 
         async for stats_data in request:
+            stats_data: StatsDataInputSerializer
             host_id = stats_data.os.hostID
 
             host, _ = await Host.objects.aget_or_create(host_id=host_id)

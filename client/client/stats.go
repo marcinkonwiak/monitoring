@@ -55,6 +55,25 @@ type containerData struct {
 }
 
 func (s statsData) toRequestData() *pb.StatsDataInputRequest {
+	processes := make([]*pb.ProcessInputRequest, 0, len(s.Processes))
+	for _, p := range s.Processes {
+		processes = append(processes, &pb.ProcessInputRequest{
+			Pid:  p.Pid,
+			Name: p.Name,
+			Cpu:  float32(p.Cpu),
+			Mem:  p.Mem,
+		})
+	}
+
+	containers := make([]*pb.ContainerInputRequest, 0, len(s.Containers))
+	for _, c := range s.Containers {
+		containers = append(containers, &pb.ContainerInputRequest{
+			ID:    c.ID,
+			Name:  c.Name,
+			Image: c.Image,
+		})
+	}
+
 	return &pb.StatsDataInputRequest{
 		Timestamp: int32(s.Timestamp),
 		Cpu: &pb.StatsCpuInputRequest{
@@ -72,6 +91,8 @@ func (s statsData) toRequestData() *pb.StatsDataInputRequest {
 			PlatformVersion: s.Os.PlatformVersion,
 			Processes:       s.Os.Processes,
 		},
+		Processes:  processes,
+		Containers: containers,
 	}
 }
 
