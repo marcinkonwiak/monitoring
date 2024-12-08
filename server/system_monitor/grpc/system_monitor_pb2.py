@@ -25,21 +25,25 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(system_monitor/grpc/system_monitor.proto\x12\x15\x63onfig.system_monitor\x1a\x1bgoogle/protobuf/empty.proto\"\'\n\x14StatsCpuInputRequest\x12\x0f\n\x07percent\x18\x01 \x01(\x02\"\xd6\x01\n\x15StatsDataInputRequest\x12\x11\n\ttimestamp\x18\x01 \x01(\x05\x12\x38\n\x03\x63pu\x18\x02 \x01(\x0b\x32+.config.system_monitor.StatsCpuInputRequest\x12\x38\n\x03ram\x18\x03 \x01(\x0b\x32+.config.system_monitor.StatsRamInputRequest\x12\x36\n\x02os\x18\x04 \x01(\x0b\x32*.config.system_monitor.StatsOsInputRequest\"o\n\x13StatsOsInputRequest\x12\x0e\n\x06hostID\x18\x01 \x01(\t\x12\n\n\x02os\x18\x02 \x01(\t\x12\x10\n\x08platform\x18\x03 \x01(\t\x12\x17\n\x0fplatformVersion\x18\x04 \x01(\t\x12\x11\n\tprocesses\x18\x05 \x01(\x04\"F\n\x14StatsRamInputRequest\x12\r\n\x05total\x18\x01 \x01(\x04\x12\x11\n\tavailable\x18\x02 \x01(\x04\x12\x0c\n\x04used\x18\x03 \x01(\x04\x32k\n\x13HostStatsController\x12T\n\x06Stream\x12,.config.system_monitor.StatsDataInputRequest\x1a\x16.google.protobuf.Empty\"\x00(\x01\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(system_monitor/grpc/system_monitor.proto\x12\x15\x63onfig.system_monitor\x1a\x1bgoogle/protobuf/empty.proto\"@\n\x15\x43ontainerInputRequest\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x0c\n\x04Name\x18\x02 \x01(\t\x12\r\n\x05Image\x18\x03 \x01(\t\"J\n\x13ProcessInputRequest\x12\x0b\n\x03Pid\x18\x01 \x01(\x05\x12\x0c\n\x04Name\x18\x02 \x01(\t\x12\x0b\n\x03\x43pu\x18\x03 \x01(\x02\x12\x0b\n\x03Mem\x18\x04 \x01(\x02\"\'\n\x14StatsCpuInputRequest\x12\x0f\n\x07percent\x18\x01 \x01(\x02\"\xd7\x02\n\x15StatsDataInputRequest\x12\x11\n\ttimestamp\x18\x01 \x01(\x05\x12\x38\n\x03\x63pu\x18\x02 \x01(\x0b\x32+.config.system_monitor.StatsCpuInputRequest\x12\x38\n\x03ram\x18\x03 \x01(\x0b\x32+.config.system_monitor.StatsRamInputRequest\x12\x36\n\x02os\x18\x04 \x01(\x0b\x32*.config.system_monitor.StatsOsInputRequest\x12=\n\tprocesses\x18\x05 \x03(\x0b\x32*.config.system_monitor.ProcessInputRequest\x12@\n\ncontainers\x18\x06 \x03(\x0b\x32,.config.system_monitor.ContainerInputRequest\"o\n\x13StatsOsInputRequest\x12\x0e\n\x06hostID\x18\x01 \x01(\t\x12\n\n\x02os\x18\x02 \x01(\t\x12\x10\n\x08platform\x18\x03 \x01(\t\x12\x17\n\x0fplatformVersion\x18\x04 \x01(\t\x12\x11\n\tprocesses\x18\x05 \x01(\x04\"F\n\x14StatsRamInputRequest\x12\r\n\x05total\x18\x01 \x01(\x04\x12\x11\n\tavailable\x18\x02 \x01(\x04\x12\x0c\n\x04used\x18\x03 \x01(\x04\x32k\n\x13HostStatsController\x12T\n\x06Stream\x12,.config.system_monitor.StatsDataInputRequest\x1a\x16.google.protobuf.Empty\"\x00(\x01\x30\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'system_monitor.grpc.system_monitor_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_STATSCPUINPUTREQUEST']._serialized_start=96
-  _globals['_STATSCPUINPUTREQUEST']._serialized_end=135
-  _globals['_STATSDATAINPUTREQUEST']._serialized_start=138
-  _globals['_STATSDATAINPUTREQUEST']._serialized_end=352
-  _globals['_STATSOSINPUTREQUEST']._serialized_start=354
-  _globals['_STATSOSINPUTREQUEST']._serialized_end=465
-  _globals['_STATSRAMINPUTREQUEST']._serialized_start=467
-  _globals['_STATSRAMINPUTREQUEST']._serialized_end=537
-  _globals['_HOSTSTATSCONTROLLER']._serialized_start=539
-  _globals['_HOSTSTATSCONTROLLER']._serialized_end=646
+  _globals['_CONTAINERINPUTREQUEST']._serialized_start=96
+  _globals['_CONTAINERINPUTREQUEST']._serialized_end=160
+  _globals['_PROCESSINPUTREQUEST']._serialized_start=162
+  _globals['_PROCESSINPUTREQUEST']._serialized_end=236
+  _globals['_STATSCPUINPUTREQUEST']._serialized_start=238
+  _globals['_STATSCPUINPUTREQUEST']._serialized_end=277
+  _globals['_STATSDATAINPUTREQUEST']._serialized_start=280
+  _globals['_STATSDATAINPUTREQUEST']._serialized_end=623
+  _globals['_STATSOSINPUTREQUEST']._serialized_start=625
+  _globals['_STATSOSINPUTREQUEST']._serialized_end=736
+  _globals['_STATSRAMINPUTREQUEST']._serialized_start=738
+  _globals['_STATSRAMINPUTREQUEST']._serialized_end=808
+  _globals['_HOSTSTATSCONTROLLER']._serialized_start=810
+  _globals['_HOSTSTATSCONTROLLER']._serialized_end=917
 # @@protoc_insertion_point(module_scope)

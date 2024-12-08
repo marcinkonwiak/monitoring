@@ -5,67 +5,80 @@ import (
 	"github.com/marcinkonwiak/monitoring-client/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"time"
 )
 
 type Client struct {
+	serverAddress  string
 	statsCollector *statsCollector
 }
 
-func NewClient() *Client {
+func NewClient(serverAddress string, sendInterval int) *Client {
 	return &Client{
-		statsCollector: newStatsCollector(time.Duration(1) * time.Second),
+		serverAddress:  serverAddress,
+		statsCollector: newStatsCollector(time.Duration(sendInterval) * time.Second),
 	}
 }
 
-func (c *Client) Start() {
-	grpcConn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+func (c *Client) getConnection() (*grpc.ClientConn, error) {
+	grpcConn, err := grpc.NewClient(c.serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Failed to connect to the server: %v", err)
+		return nil, err
 	}
-	defer func(grpcClient *grpc.ClientConn) {
-		err := grpcClient.Close()
-		if err != nil {
-			log.Fatalf("Failed to close the connection: %v", err)
-		}
-	}(grpcConn)
+	return grpcConn, nil
+}
 
-	client := pb.NewHostStatsControllerClient(grpcConn)
+func (c *Client) getStream(conn *grpc.ClientConn) (grpc.BidiStreamingClient[pb.StatsDataInputRequest, emptypb.Empty], error) {
+	client := pb.NewHostStatsControllerClient(conn)
 	stream, err := client.Stream(context.Background())
 	if err != nil {
-		log.Fatalf("Failed to create stream: %v", err)
+		return nil, err
 	}
 
+	return stream, err
+}
+
+func (c *Client) Start() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	go c.statsCollector.start(ctx)
 
-mainLoop:
 	for {
-		select {
-		case data := <-c.statsCollector.data:
-			if err := sendStatsWithRetry(stream, data, 3, time.Second); err != nil {
-				log.Printf("Failed to send data after 3 attempts: %v", err)
-				break mainLoop
-			}
-			log.Printf("Data sent")
+		if err := c.streamData(); err != nil {
+			log.Printf("Error: %v", err)
+			log.Printf("Trying to reconnect in 5 seconds")
+			time.Sleep(5 * time.Second)
 		}
 	}
 }
 
-func sendStatsWithRetry(stream pb.HostStatsController_StreamClient, data statsData, maxRetries int, retryDelay time.Duration) error {
-	var err error
-	for attempt := 1; attempt <= maxRetries; attempt++ {
-		err = stream.Send(data.toRequestData())
-		if err == nil {
-			return nil
+func (c *Client) streamData() error {
+	grpcConn, err := c.getConnection()
+	if err != nil {
+		return err
+	}
+	defer func(grpcClient *grpc.ClientConn) {
+		err := grpcClient.Close()
+		if err != nil {
+			log.Printf("Failed to close the connection: %v", err)
 		}
+	}(grpcConn)
 
-		log.Printf("Attempt %d to send data failed: %v", attempt, err)
-		time.Sleep(retryDelay)
+	stream, err := c.getStream(grpcConn)
+	if err != nil {
+		return err
 	}
 
-	return err
+	for {
+		select {
+		case data := <-c.statsCollector.data:
+			if err := stream.Send(data.toRequestData()); err != nil {
+				return err
+			}
+			log.Printf("Data sent")
+		}
+	}
 }

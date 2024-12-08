@@ -36,8 +36,38 @@ class StatsOsInputSerializer(proto_serializers.BaseProtoSerializer):
         ]
 
 
+class ProcessInputSerializer(proto_serializers.BaseProtoSerializer):
+    Pid = serializers.IntegerField()
+    Name = serializers.CharField()
+    Cpu = serializers.FloatField()
+    Mem = serializers.FloatField()
+
+    def to_proto_message(self):
+        return [
+            {"name": "Pid", "type": "int32"},
+            {"name": "Name", "type": "string"},
+            {"name": "Cpu", "type": "float"},
+            {"name": "Mem", "type": "float"},
+        ]
+
+
+class ContainerInputSerializer(proto_serializers.BaseProtoSerializer):
+    ID = serializers.CharField()
+    Name = serializers.CharField()
+    Image = serializers.CharField()
+
+    def to_proto_message(self):
+        return [
+            {"name": "ID", "type": "string"},
+            {"name": "Name", "type": "string"},
+            {"name": "Image", "type": "string"},
+        ]
+
+
 class StatsDataInputSerializer(proto_serializers.ProtoSerializer):
     timestamp = serializers.IntegerField()
     cpu = StatsCpuInputSerializer()
     ram = StatsRamInputSerializer()
     os = StatsOsInputSerializer()
+    processes = serializers.ListField(child=ProcessInputSerializer())
+    containers = serializers.ListField(child=ContainerInputSerializer())

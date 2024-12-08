@@ -10,6 +10,19 @@ service HostStatsController {
     rpc Stream(stream StatsDataInputRequest) returns (stream google.protobuf.Empty) {}
 }
 
+message ContainerInputRequest {
+    string ID = 1;
+    string Name = 2;
+    string Image = 3;
+}
+
+message ProcessInputRequest {
+    int32 Pid = 1;
+    string Name = 2;
+    float Cpu = 3;
+    float Mem = 4;
+}
+
 message StatsCpuInputRequest {
     float percent = 1;
 }
@@ -19,6 +32,8 @@ message StatsDataInputRequest {
     StatsCpuInputRequest cpu = 2;
     StatsRamInputRequest ram = 3;
     StatsOsInputRequest os = 4;
+    repeated ProcessInputRequest processes = 5;
+    repeated ContainerInputRequest containers = 6;
 }
 
 message StatsOsInputRequest {
@@ -34,4 +49,3 @@ message StatsRamInputRequest {
     uint64 available = 2;
     uint64 used = 3;
 }
-
