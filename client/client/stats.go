@@ -161,7 +161,7 @@ func (s *statsCollector) getCpuData(d *statsCpu, wg *sync.WaitGroup, mu *sync.Mu
 
 	c, err := cpu.Percent(s.interval, false)
 	if err != nil {
-		log.Printf("Failed to collect data: %v\n", err)
+		log.Printf("Failed to collect CPU data: %v\n", err)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (s *statsCollector) getRamData(d *statsRam, wg *sync.WaitGroup, mu *sync.Mu
 
 	m, err := mem.VirtualMemory()
 	if err != nil {
-		log.Printf("Failed to collect data: %v\n", err)
+		log.Printf("Failed to collect RAM data: %v\n", err)
 		return
 	}
 
@@ -196,7 +196,7 @@ func (s *statsCollector) getOsData(d *statsOs, wg *sync.WaitGroup, mu *sync.Mute
 
 	o, err := host.Info()
 	if err != nil {
-		log.Printf("Failed to collect data: %v\n", err)
+		log.Printf("Failed to collect OS data: %v\n", err)
 		return
 	}
 
@@ -214,26 +214,26 @@ func (s *statsCollector) getProcessesData(d *statsData, wg *sync.WaitGroup, mu *
 
 	procs, err := process.Processes()
 	if err != nil {
-		log.Printf("Failed to collect data: %v\n", err)
+		log.Printf("Failed to collect processes data: %v\n", err)
 		return
 	}
 
 	for _, p := range procs {
 		pName, err := p.Name()
 		if err != nil {
-			log.Printf("Failed to collect data: %v\n", err)
+			log.Printf("Failed to collect process name: %v\n", err)
 			return
 		}
 
 		pCpu, err := p.CPUPercent()
 		if err != nil {
-			log.Printf("Failed to collect data: %v\n", err)
+			log.Printf("Failed to collect process cpu: %v\n", err)
 			return
 		}
 
 		pMem, err := p.MemoryPercent()
 		if err != nil {
-			log.Printf("Failed to collect data: %v\n", err)
+			log.Printf("Failed to collect process memory: %v\n", err)
 			return
 		}
 
