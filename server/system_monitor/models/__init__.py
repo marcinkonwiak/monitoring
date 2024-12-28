@@ -1,1 +1,1 @@
-from .host import Host, HostStats
+from .host import Host, HostBaseStats

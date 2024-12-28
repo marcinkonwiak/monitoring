@@ -7,10 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateModalPosition = () => {
         const rect = searchInput.getBoundingClientRect();
-        modal.style.top = `${rect.bottom + window.scrollY}px`;
-        modal.style.left = `${rect.left + window.scrollX}px`;
+        const sidebar = document.querySelector(".sidebar");
+        const isSidebarHidden = sidebar.classList.contains("hidden");
+        const sidebarWidth = isSidebarHidden ? 0 : sidebar.offsetWidth;
+
+        modal.style.top = `${rect.bottom}px`;
+        modal.style.left = `${rect.left - sidebarWidth}px`;
         modal.style.width = `${rect.width}px`;
     };
+
 
     const filterHosts = (query) => {
         const lowerCaseQuery = query.toLowerCase();

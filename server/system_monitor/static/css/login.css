@@ -6,13 +6,28 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-image: radial-gradient(circle at bottom, rgba(30, 30, 60, 0.7), rgba(50, 50, 100, 0.5), transparent 50%),
-    linear-gradient(to bottom, transparent, #100c0c 50%);
-    background-size: cover;
+    background-image:
+        linear-gradient(to top, rgba(33, 41, 48, 0.5), rgba(33, 41, 48, 0.7), transparent 50%),
+        linear-gradient(to top, #100c0c 50%, transparent 100%);
+    background-size: 200% 200%;
     background-repeat: no-repeat;
-    background-position: top;
-    overflow: auto;
+    background-position: bottom;
+    overflow: hidden;
+    animation: wave-motion 10s ease-in-out forwards;
 }
+
+@keyframes wave-motion {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 50% 50%;
+    }
+    100% {
+        background-position: 50% 50%;
+    }
+}
+
 
 .github-logo {
     position: absolute;
@@ -40,7 +55,7 @@ body {
     backdrop-filter: blur(12px);
     width: 100%;
     max-width: 400px;
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -81,14 +96,13 @@ body {
 
 .input-group input {
     width: 100%;
-    padding: 0.4rem 0;
+    padding: 0.3rem 0;
     text-indent: 10px;
-    border-radius: 8px;
-    border: 0;
-    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(255,255,255,0.05);
     color: #e0e0e0;
     font-size: 13px;
-    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.5);
     transition: box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
 }
 
@@ -96,37 +110,33 @@ body {
     background-color: rgba(255, 255, 255, 0.15);
 }
 
-.input-group input:focus {
-    outline: none;
-    border-color: rgba(67, 97, 238, 0.7);
-    box-shadow: 0px 0px 5px rgba(67, 97, 238, 0.4);
-    background-color: rgba(255, 255, 255, 0.1);
-}
+
+
 
 .login-button {
     width: 100%;
-    padding: 0.6rem 0.8rem;
     margin-top: 0.3rem;
-    background-color: rgba(67, 97, 238, 0.8);
-    border: none;
+    padding: 0.6rem 0.8rem;
+    background-color: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    color: #e0e0e0;
+    color: #ffffff;
     font-weight: 500;
     font-size: 13px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    box-shadow: 0px 4px 10px rgba(67, 97, 238, 0.3);
+    text-shadow: none;
 }
 
 .login-button:hover {
-    background-color: rgba(67, 97, 238, 0.9);
-    box-shadow: 0px 4px 14px rgba(67, 97, 238, 0.5);
+    background-color: rgba(0,0,0,0.7);
 }
 
 .login-button:active {
-    transform: scale(0.98);
-    box-shadow: 0px 3px 8px rgba(67, 97, 238, 0.4);
+    transform: scale(0.97);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
+
 
 .error-message {
     position: absolute;
@@ -145,14 +155,7 @@ body {
     transition: opacity 0.3s ease-in-out;
 }
 
-@keyframes fade-in {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
+
 
 @media (max-width: 796px) {
     .login-container {
@@ -171,4 +174,8 @@ body {
         font-size: 12px;
         padding: 0.5rem 0.7rem;
     }
+}
+
+#app-logo {
+    width: 4rem;
 }

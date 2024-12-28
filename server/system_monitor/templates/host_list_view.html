@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_headers %}
+    <link rel="stylesheet" href="{% static 'css/list_view.css' %}">
+
+    <script src="{% static 'js/search-list-cards.js' %}" defer></script>
+    <script src="{% static 'js/color-list-card.js' %}" defer></script>
+{% endblock %}
+
+
+{% block content %}
+    <p class="header" >We found {{ hosts.count }} hosts</p>
+    <div class="search-list-container">
+        <input class="search-input" type="text" id="search-list" placeholder="Search by Host ID or OS">
+    </div>
+
+    <div class="row" id="host-list">
+        {% for host in hosts %}
+            <a href="{% url 'host_detail' host.host_id %}" class="card-link">
+                <div class="card" id="card-list" data-host-id="{{ host.id }}" data-host-os="{{ host.os }}">
+                    <div>
+                        <p class="card-title"><span>{{ host.os }}</span></p>
+                        <p class=""><span>{{ host.id }}</span></p>
+                    </div>
+                    <div class="card-body">
+                        <div class="date-element-card">
+                            <p class="date-element-header">Last seen</p>
+                            <p class="date-element-value">{{ host.last_seen }}</p>
+                        </div>
+                        <div class="date-element-card">
+                            <p class="date-element-header">Created</p>
+                            <p class="date-element-value">{{ host.created_at }}</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+
+{% endblock %}

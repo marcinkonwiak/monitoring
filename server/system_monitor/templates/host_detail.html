@@ -6,18 +6,88 @@
     <link rel="stylesheet" href="{% static 'css/host_detail.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-
-
+    <script src="{% static 'js/modal-processes.js' %}" defer></script>
+    <script src="{% static 'js/fetch-containers-data.js' %}" defer></script>
+    <script src="{% static 'js/fetch-usage-data.js' %}" type="module" defer></script>
+    <script src="{% static 'js/ram-chart.js' %}" type="module" defer></script>
+    <script src="{% static 'js/cpu-chart.js' %}" type="module" defer></script>
 {% endblock %}
 
-
 {% block content %}
+    <div class="row">
+        <div class="card-detail" id="basic-card">
+            <p class="header" id="card-header">Basic information</p>
+            <div class="card-body">
+                <p>Host ID: {{ host.host_id }}</p>
+                <p>OS: {{ host.os }}</p>
+                <p>Platform: {{ platform }}</p>
+                <p>Platform version: {{ platform_version }}</p>
+            </div>
+        </div>
+        <div class="card-detail" id="process-card">
+            <p class="header" id="card-header">Processes</p>
+            <div class="card-body">
+                <p>Recently, there were {{ total_processes }} processes</p>
+                <button class="primary-button" id="show-processes-btn" data-host-id="{{ host.host_id }}">
+                    Show Processes
+                </button>
+            </div>
+        </div>
+    </div>
+<div class="card-detail terminal-console" id="usage-card" data-host-id="{{ host.host_id }}">
+    <p class="header terminal-header" id="card-header">System Usage Logs</p>
+    <div class="card-body">
+        <div id="usage-log-container">
+            <table class="table terminal-table" id="usage-stats-table">
+                <thead>
+                    <tr>
+                        <th>time</th>
+                        <th>cpu (%)</th>
+                        <th>ram total (mb)</th>
+                        <th>ram available (mb)</th>
+                        <th>ram used (mb)</th>
+                        <th>processes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        <div class="usage-controls">
+            <select id="usage-limit">
+                <option value="50" selected>50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+            </select>
+        </div>
+    </div>
+</div>
 
-    <p>OS: {{ host.os }}</p>
-    <p>Last Seen: {{ host.last_seen }}</p>
+    <div class="card-detail" id="containers-card">
+        <p class="header" id="card-header">Containers</p>
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table" id="containers-table">
+                    <thead>
+                    <tr>
+                        <th>Container ID</th>
+                        <th>Name</th>
+                        <th>Image</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- dane z api -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <div class="card-detail">
-        <p class="card-detail-title">CPU Usage</p>
+        <p class="card-detail-title">Latest CPU Usage</p>
         <div id="cpu-chart-wrapper">
             <div id="cpu-chart"></div>
             <div id="cpu-value">0%</div>
@@ -25,181 +95,47 @@
     </div>
 
     <div class="card-detail">
-        <p class="card-detail-title">RAM Usage</p>
-        <canvas id="ram-chart" width="800" height="400"></canvas>
+        <p class="card-detail-title">RAM Usage Graph</p>
+        <div id="ram-chart-container" data-host-id="{{ host.host_id }}">
+            <select id="ram-data-limit">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30" selected>30</option>
+                <option value="50">50</option>
+                <option value="200">200</option>
+            </select>
+            <canvas id="ram-chart" width="800" height="400"></canvas>
+        </div>
+
     </div>
 
 
-    <table border="1">
-        <thead>
-        <tr>
-            <th>Time</th>
-            <th>CPU %</th>
-            <th>RAM Total</th>
-            <th>RAM Available</th>
-            <th>RAM Used</th>
-            <th>OS</th>
-            <th>Platform</th>
-            <th>Version</th>
-            <th>Processes</th>
-        </tr>
-        </thead>
-        <tbody id="stats-body">
-        </tbody>
-    </table>
+    <div id="processes-modal" class="process-modal" style="display: none;">
+        <div class="process-modal-content">
+            <p class="header">Processes List</p>
+            <input type="text" id="process-search" placeholder="Search processes by name..." class="process-search"/>
+            <table class="process-table">
+                <thead>
+                <tr>
+                    <th>PID</th>
+                    <th>Name</th>
+                    <th>CPU (%)</th>
+                    <th>MEM (%)</th>
+                </tr>
+                </thead>
+                <tbody id="processes-list">
+                <!-- Procesy here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script type="module">
+        import {updateCpuChart} from "{% static 'js/cpu-chart.js' %}";
 
-
-{% endblock %}
-
-{% block extra_scripts %}
-    <script>
-        let ramChart;
-
-        function initializeRamChart() {
-            const ctx = document.getElementById('ram-chart').getContext('2d');
-            ramChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [], // Initialize empty labels
-                    datasets: [{
-                        label: 'Available RAM (MB)',
-                        data: [], // Initialize empty data
-                        borderColor: '#4caf50',
-                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                        fill: true,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 2,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'second',
-                            },
-                            title: {
-                                display: true,
-                                text: 'Time'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'RAM Available (MB)'
-                            },
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function (value) {
-                                    return (value / (1024 * 1024)).toFixed(0) + ' MB';
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateRamChart(ramAvailable, time) {
-            if (ramChart) {
-                const lastLabel = ramChart.data.labels[ramChart.data.labels.length - 1];
-                if (!lastLabel || new Date(lastLabel).getTime() !== new Date(time).getTime()) {
-                    ramChart.data.labels.push(time);
-                    ramChart.data.datasets[0].data.push(ramAvailable);
-
-                    if (ramChart.data.labels.length > 20) {
-                        ramChart.data.labels.shift();
-                        ramChart.data.datasets[0].data.shift();
-                    }
-
-                    ramChart.update();
-                }
-            }
-        }
-
-
-        function updateCpuChart(cpuPercent) {
-            const chart = $("#cpu-chart");
-            const cpuValue = $("#cpu-value");
-            chart.empty();
-
-            const roundedCpuPercent = Math.round(cpuPercent);
-
-            const activeSquares = Math.floor(roundedCpuPercent / 5);
-            for (let i = 0; i < 20; i++) {
-                const square = $("<div>").addClass("cpu-square");
-                if (i < activeSquares) {
-                    square.addClass("active");
-                }
-                chart.append(square);
-            }
-
-            cpuValue.text(`${roundedCpuPercent}%`);
-        }
-
-function fetchStats() {
-    $.getJSON("{% url 'host_stats_data' host.host_id %}", function (data) {
-        const statsBody = $("#stats-body");
-        statsBody.empty();
-
-        const columns = [
-            "time",
-            "cpu_percent",
-            "ram_total",
-            "ram_available",
-            "ram_used",
-            "os",
-            "platform",
-            "platform_version",
-            "processes",
-        ];
-
-        if (data.stats.length === 0) {
-            statsBody.append("<tr><td colspan='9'>No data available</td></tr>");
-            return;
-        }
-
-        const labels = [];
-        const ramAvailableData = [];
-
-        data.stats.forEach((stat, index) => {
-            const row = $("<tr>");
-            columns.forEach(col => {
-                const value = stat[col];
-                row.append(`<td>${value !== undefined ? value : "-"}</td>`);
-            });
-            statsBody.append(row);
-
-            labels.push(new Date(stat["time"]));
-            ramAvailableData.push(stat["ram_available"]);
-
-            if (index === 0) {
-                updateCpuChart(stat["cpu_percent"]);
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            const cpuPercent = {{ cpu_percent }};
+            updateCpuChart(cpuPercent);
         });
-
-        if (ramChart) {
-            ramChart.data.labels = labels;
-            ramChart.data.datasets[0].data = ramAvailableData;
-            ramChart.update();
-        }
-    }).fail(function (jqXHR, textStatus, errorThrown) {
-        console.error("Error fetching stats:", textStatus, errorThrown);
-    });
-}
-
-
-        $(document).ready(function () {
-            initializeRamChart();
-            fetchStats();
-            setInterval(fetchStats, 5000);
-        });
-
     </script>
+
 {% endblock %}

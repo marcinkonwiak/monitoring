@@ -1,11 +1,11 @@
 #search-modal {
     display: none;
     position: absolute;
-    margin-top: 1rem;
-    top: calc(100% + 8px);
+    top: 100%;
     left: 0;
+    margin-top: 8px;
     width: 100%;
-    background-color: #1a1a1a;
+    background: #1a1a1a;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -18,24 +18,22 @@
 
 .modal-content .host-item {
     display: flex;
-    flex-direction: row;
     padding: 5px;
     cursor: pointer;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background-color 0.2s ease;
 }
 
 .modal-content .host-item:hover {
-    background-color: #272727;
+    background: #272727;
 }
 
-
-#host-id {
-    margin-bottom:0;
-    padding-bottom:0;
+#host-id,
+#host-os {
+    margin: 0;
+    padding: 0;
 }
 
 #host-os {
-    margin-top:0;
-    padding-top:0;
     text-transform: capitalize;
 }
