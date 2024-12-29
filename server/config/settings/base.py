@@ -3,7 +3,7 @@ from pathlib import Path
 import environ
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-APPS_DIR = BASE_DIR / "src"
+APPS_DIR = BASE_DIR / "system_monitor"
 
 env = environ.Env()
 
@@ -41,7 +41,8 @@ ROOT_URLCONF = "system_monitor.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
 STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [APPS_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # APPS
 # ------------------------------------------------------------------------------

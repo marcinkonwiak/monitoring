@@ -1,0 +1,28 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./docker/prod/Dockerfile
+    networks:
+      - local
+    ports:
+      - "8090:8000"
+    env_file:
+      - .env
+    command: uv run gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 1
+
+  rpc:
+    build:
+      context: .
+      dockerfile: ./docker/prod/Dockerfile
+    networks:
+      - local
+    ports:
+      - "8091:50051"
+    env_file:
+      - .env
+    command: uv run manage.py grpcrunaioserver
+
+networks:
+  local:
+    driver: bridge 
