@@ -11,7 +11,7 @@ services:
       - .env
     volumes:
       - staticfiles:/staticfiles
-    command: uvicorn config.wsgi --bind 0.0.0.0:8000 --workers 1
+    command: uv run gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 1
 
   rpc:
     build:
