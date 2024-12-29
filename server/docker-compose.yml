@@ -11,6 +11,7 @@ services:
       - .env
     volumes:
       - staticfiles:/app/staticfiles
+      - ./db.sqlite3:/app/db.sqlite3
     command: uv run gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 1
 
   rpc:
@@ -23,6 +24,8 @@ services:
       - "8091:50051"
     env_file:
       - .env
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
     command: uv run manage.py grpcrunaioserver
 
   nginx:
@@ -42,4 +45,4 @@ volumes:
 
 networks:
   local:
-    driver: bridge 
+    driver: bridge
