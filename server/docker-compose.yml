@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
     volumes:
-      - staticfiles:/staticfiles
+      - staticfiles:/app/staticfiles
     command: uv run gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 1
 
   rpc:
@@ -33,7 +33,7 @@ services:
       - "80:80"
     volumes:
       - ./docker/prod/nginx.conf:/etc/nginx/nginx.conf:ro
-      - staticfiles:/staticfiles
+      - staticfiles:/staticfiles:ro
     networks:
       - local
 
