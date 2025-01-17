@@ -5,6 +5,11 @@ Wykonano przez: Marcin Konwiak, Michał Konwiak
 Aplikacja składa się z klienta oraz serwera. Celem serwera jest zbieranie danych zawierających informacje o systemie na którym uruchomiony jest klient. 
 Użytkownik ma możliwość zalogowania się do aplikacji i przeglądania danych zebranych przez każdego klienta.
 
+Przykładowy serwer dostępny jest pod [http://165.227.167.195/](http://165.227.167.195/).
+Dane logowania:
+- Login: `projekt_psr_login`
+- Hasło: `projekt_psr_haslo`
+
 ## Architektura aplikacji
 
 Na poniższym diagramie przedstawiono architekturę aplikacji.
@@ -121,7 +126,22 @@ Uruchomienie serwera gRPC lokalnie:
 uv run manage.py grpcrunaioserver
 ```
 
+Uruchomienie migracji bazy danych:
+
+```bash
+uv run manage.py migrate
+```
+
+Dodanie użytkownika:
+
+```bash
+uv run manage.py createsuperuser
+```
+
 ### Panel użytkownika
+
+Panel logowania:
+![Lista klientów](docs/img/screenshot_0.png)
 
 Lista klientów:
 ![Lista klientów](docs/img/screenshot_1.png)
